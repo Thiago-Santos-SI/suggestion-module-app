@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import "./App.css";
 import * as XLSX from "xlsx";
-import  { orderBy, uniqBy } from 'lodash'
+import  { uniqBy } from 'lodash'
+import LoadingSpin from '@material-ui/core/CircularProgress';
+import Button from '@material-ui/core/Button';
+
 
 class ExcelToJson extends React.Component {
   constructor(props) {
@@ -10,7 +13,9 @@ class ExcelToJson extends React.Component {
     this.state = {
       file: "",
       dataArray: [],
-      result: []
+      result: [],
+      spinVisible: false,
+      buttonDisable: true
     };
   }
 
@@ -23,7 +28,7 @@ class ExcelToJson extends React.Component {
     e.preventDefault();
     var file = e.target.files[0];
     console.log(file);
-    this.setState({ file });
+    this.setState({ file, buttonDisable: false });
 
     console.log(this.state.file);
   }
@@ -121,6 +126,9 @@ class ExcelToJson extends React.Component {
             }
           ]
           return data
+        })
+        this.setState({
+          spinVisible: true
         })
         let JsonResult = []
         setTimeout(() => {
@@ -253,36 +261,51 @@ class ExcelToJson extends React.Component {
   }
 
   render() {
-    const { result } = this.state
+    const { result, spinVisible, buttonDisable } = this.state
 
     return (
         <div>
-          <input
-              type="file"
-              id="file"
-              ref="fileUploader"
-              onChange={this.filePathset.bind(this)}
-          />
-          <button
-              onClick={() => {
-                this.readFile();
-              }}
-          >
-            Read File
-          </button>
-
+          <div className="container">
+            <input
+                type="file"
+                id="file"
+                ref="fileUploader"
+                onChange={this.filePathset.bind(this)}
+            />
+            <div className="inputButton">
+              <Button
+                  disabled={buttonDisable}
+                  variant="contained"
+                  color="primary"
+                  onClick={() => {
+                    this.readFile();
+                  }}
+              >
+                Read File
+              </Button>
+            </div>
+          </div>
           <div>
-            {result.map(item => {
-              console.log(item)
-              return (
-                  <div>
-                    <p>Usuario: {item.usuario}</p>
-                    <p>modulo 1: {item.modulo1}</p>
-                    <p>modulo 2: {item.modulo2}</p>
-                    <p>modulo 1: {item.modulo3}</p>
-                  </div>
-              )
-            })}
+            {result.length > 0 ? (
+                <div className="containerResult">
+                  {result.map(item => {
+                    console.log(item)
+                    return (
+                        <div className="containerItems">
+                          <p>Usuario: {item.usuario}</p>
+                          <p>modulo 1: {item.modulo1}</p>
+                          <p>modulo 2: {item.modulo2}</p>
+                          <p>modulo 1: {item.modulo3}</p>
+                        </div>
+                    )
+                  })}
+                </div>
+            ) : (
+                <div>
+                  {spinVisible === true ? (<LoadingSpin className="loading" />) : null}
+                </div>
+            )}
+
           </div>
         </div>
     );
