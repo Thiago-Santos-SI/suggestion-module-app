@@ -17,7 +17,12 @@
 }
 
 .containerItems {
-    margin-top: 5%;
+    margin-left: 30px;
+    margin-top: 1%;
+}
+
+.inputFileError {
+    border: red;
 }
 
 .bigblue {

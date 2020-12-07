@@ -4,7 +4,7 @@ import * as XLSX from "xlsx";
 import  { uniqBy } from 'lodash'
 import LoadingSpin from '@material-ui/core/CircularProgress';
 import Button from '@material-ui/core/Button';
-
+import Alert from '@material-ui/lab/Alert';
 
 class ExcelToJson extends React.Component {
   constructor(props) {
@@ -15,7 +15,8 @@ class ExcelToJson extends React.Component {
       dataArray: [],
       result: [],
       spinVisible: false,
-      buttonDisable: true
+      buttonDisable: true,
+      alertVisible: false
     };
   }
 
@@ -27,9 +28,24 @@ class ExcelToJson extends React.Component {
     e.stopPropagation();
     e.preventDefault();
     var file = e.target.files[0];
-    console.log(file);
-    this.setState({ file, buttonDisable: false });
 
+    if (!file) {
+      return
+    } else {
+
+      if (file.type !== 'application/wps-office.xlsx') {
+        return this.setState({
+          alertVisible: true,
+          buttonDisable: true
+        });
+
+      } else {
+        this.setState({
+          file,
+          buttonDisable: false,
+        });
+      }
+    }
     console.log(this.state.file);
   }
 
@@ -261,12 +277,14 @@ class ExcelToJson extends React.Component {
   }
 
   render() {
-    const { result, spinVisible, buttonDisable } = this.state
+    const { result, spinVisible, buttonDisable, alertVisible } = this.state
 
     return (
         <div>
           <div className="container">
             <input
+                className={alertVisible === true ? "inputFileError" : null}
+                accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 type="file"
                 id="file"
                 ref="fileUploader"
@@ -288,17 +306,22 @@ class ExcelToJson extends React.Component {
           <div>
             {result.length > 0 ? (
                 <div className="containerResult">
+                  <p>{String('[')}</p>
                   {result.map(item => {
                     console.log(item)
                     return (
                         <div className="containerItems">
-                          <p>Usuario: {item.usuario}</p>
-                          <p>modulo 1: {item.modulo1}</p>
-                          <p>modulo 2: {item.modulo2}</p>
-                          <p>modulo 1: {item.modulo3}</p>
+                          <p>{String('{')}</p>
+                          <p>"Usuario": "{item.usuario}",</p>
+                          <p>"modulo 1": "{item.modulo1}",</p>
+                          <p>"modulo 2": "{item.modulo2}",</p>
+                          <p>"modulo 1": "{item.modulo3}"</p>
+                          <p>},</p>
+
                         </div>
                     )
                   })}
+                  <p>{String(']')}</p>
                 </div>
             ) : (
                 <div>
